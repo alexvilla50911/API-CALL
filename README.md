@@ -2,6 +2,11 @@
 
 Scripts de automatización para registro de usuarios en una plataforma.
 
+> **Nota:** esta es una plantilla pública, no un cliente listo para usar. Los catálogos
+> (`/catalogo-1`, `catalogo_2_id`, etc.), los nombres y sitios web que genera son
+> placeholders fake — no corresponden a ninguna API real. Para usarla contra tu propia
+> API tienes que reemplazar esos endpoints y nombres de campo por los de tu backend.
+
 ## Requisitos
 
 - Python 3.9+
@@ -34,11 +39,8 @@ EMAIL_TAG=testing
 ## Uso
 
 ```bash
-# Registrar un comprador
-python register.py --tipo comprador
-
-# Registrar un vendedor
-python register.py --tipo vendedor
+python register.py --tipo tipo_a
+python register.py --tipo tipo_b
 ```
 
 Cada ejecución genera un usuario con email único y contraseña aleatoria. Al terminar imprime las credenciales para que puedas hacer login.

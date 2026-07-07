@@ -2,8 +2,8 @@
 """
 
 como levanrtarlo:
-  python register.py --tipo comprador
-  python register.py --tipo vendedor
+  python register.py --tipo tipo_a
+  python register.py --tipo tipo_b
   despues seleccionas el pais que quieras
   y te da las credenciales jej
 """
@@ -41,18 +41,11 @@ APELLIDOS = [
     "Pérez", "Sánchez", "Ramírez", "Torres", "Flores", "Rivera", "Gómez",
     "Díaz", "Cruz", "Morales", "Reyes", "Gutiérrez", "Ortiz", "Mendoza",
 ]
-EMPRESAS = [
-    "Soluciones", "Tecnología", "Grupo", "Servicios", "Inversiones",
-    "Comercial", "Industrial", "Digital", "Capital", "Estrategia",
-]
-SUFIJOS_EMPRESA = [
-    "MX", "LATAM", "Global", "Partners", "Corp", "SA", "Holdings",
-]
 WEBSITES = [
     "https://www.ejemplo.com",
-    "https://www.miempresa.mx",
-    "https://www.negocio.co",
-    "https://www.corporativo.lat",
+    "https://www.sitio-demo.mx",
+    "https://www.pagina-test.co",
+    "https://www.placeholder.lat",
 ]
 
 
@@ -76,7 +69,7 @@ def gen_phone():
 
 def read_counter():
     if not COUNTER_FILE.exists():
-        return {"comprador": 0, "vendedor": 0}
+        return {"tipo_a": 0, "tipo_b": 0}
     with open(COUNTER_FILE) as f:
         return json.load(f)
 
@@ -149,99 +142,68 @@ def load_dropdowns(tipo):
         "currency_id": currency["id"],
     }
 
-    if tipo == "vendedor":
-        data["industry_id"] = pick(fetch("/industries"))
-        data["company_type_id"] = pick(fetch("/company_types"))
-        data["interest_id"] = pick(fetch("/interests"))
-        data["user_company_role_id"] = pick(fetch("/user_company_roles"))
-        data["ebitda_range_id"] = pick(fetch("/ebitda_ranges"))
-        yearly_sales = fetch(f"/yearly_sales_ranges?country_id={country_id}")
-        if not yearly_sales:
-            yearly_sales = fetch("/yearly_sales_ranges")
-        data["yearly_sales_range_id"] = pick(yearly_sales)
+    # NOTA: los nombres de campos/endpoints de aquí para abajo son placeholders
+    # (catalogo_1, catalogo_2, ...) — cámbialos por los catálogos reales de tu API
+    if tipo == "tipo_a":
+        data["catalogo_1_id"] = pick(fetch("/catalogo-1"))
+        data["catalogo_2_id"] = pick(fetch("/catalogo-2"))
+        data["catalogo_3_id"] = pick(fetch("/catalogo-3"))
+        data["catalogo_4_id"] = pick(fetch("/catalogo-4"))
+        data["catalogo_5_id"] = pick(fetch("/catalogo-5"))
+        catalogo_6 = fetch(f"/catalogo-6?country_id={country_id}")
+        if not catalogo_6:
+            catalogo_6 = fetch("/catalogo-6")
+        data["catalogo_6_id"] = pick(catalogo_6)
 
-    if tipo == "comprador":
-        data["buyer_description_id"] = pick(fetch("/buyer_descriptions"))
-        data["transaction_experience_id"] = pick(fetch("/transaction_experiences"))
-        investment_sizes = fetch(f"/investment_sizes?country_id={country_id}")
-        if not investment_sizes:
-            investment_sizes = fetch("/investment_sizes")
-        data["investment_size_id"] = pick(investment_sizes)
+    if tipo == "tipo_b":
+        data["catalogo_7_id"] = pick(fetch("/catalogo-7"))
+        data["catalogo_8_id"] = pick(fetch("/catalogo-8"))
+        catalogo_9 = fetch(f"/catalogo-9?country_id={country_id}")
+        if not catalogo_9:
+            catalogo_9 = fetch("/catalogo-9")
+        data["catalogo_9_id"] = pick(catalogo_9)
 
     print("OK")
     return data
 
 
-def register_vendedor(numero, dropdowns):
+def register_usuario(tipo, numero, dropdowns):
     nombre = f"{pick_str(NOMBRES)} {pick_str(APELLIDOS)}"
-    empresa = f"{pick_str(EMPRESAS)} {pick_str(APELLIDOS)} {pick_str(SUFIJOS_EMPRESA)}"
-    email = f"vendedor+{EMAIL_TAG}+{numero}@{EMAIL_DOMAIN}"
-    password = gen_password()
-
-    # le puse este rango pa que no salgan empresas "recién nacidas" ni unas
-    # ya jubiladas del siglo pasado, así se ve más creíble el dato
-    year = random.randint(2000, 2020)
-    month = str(random.randint(1, 12)).zfill(2)
-    day = str(random.randint(1, 28)).zfill(2)
-    foundation_date = f"{year}-{month}-{day}"
-
-    headcount = random.choice([5, 10, 25, 50, 100, 200, 500])
-
-    payload = {
-        "user": {
-            "email": email,
-            "password": password,
-            "phone": gen_phone(),
-            "name": nombre,
-            "international_code_id": dropdowns["international_code_id"],
-            "legal_acceptances": True,
-        },
-        "name": empresa,
-        "website": random.choice(WEBSITES),
-        "foundation_date": foundation_date,
-        "headcount": headcount,
-        "short_description": f"Empresa de prueba número {numero} registrada automáticamente.",
-        "industry_id": dropdowns["industry_id"],
-        "company_type_id": dropdowns["company_type_id"],
-        "country_id": dropdowns["country_id"],
-        "state_id": dropdowns["state_id"],
-        "interest_id": dropdowns["interest_id"],
-        "user_company_role_id": dropdowns["user_company_role_id"],
-        "ebitda_range_id": dropdowns["ebitda_range_id"],
-        "yearly_sales_range_id": dropdowns["yearly_sales_range_id"],
-        "currency_id": dropdowns["currency_id"],
-    }
- 
-    print(f"Registrando vendedor #{numero}...", end=" ", flush=True)
-    r = requests.post(f"{API_URL}/sellers", json=payload)
-    return r, email, password, payload
-
-
-def register_comprador(numero, dropdowns):
-    nombre = f"{pick_str(NOMBRES)} {pick_str(APELLIDOS)}"
-    email = f"comprador+{EMAIL_TAG}+{numero}@{EMAIL_DOMAIN}"
+    email = f"{tipo}+{EMAIL_TAG}+{numero}@{EMAIL_DOMAIN}"
     password = gen_password()
 
     payload = {
-        "buyer_description_id": dropdowns["buyer_description_id"],
         "country_id": dropdowns["country_id"],
         "state_id": dropdowns["state_id"],
-        "investment_description_summary": f"Inversionista de prueba número {numero}. Buscando oportunidades en LATAM.",
-        "investment_size_id": dropdowns["investment_size_id"],
         "currency_id": dropdowns["currency_id"],
-        "transaction_experience_id": dropdowns["transaction_experience_id"],
+        "description_summary": f"Registro de prueba número {numero}.",
         "user": {
             "email": email,
             "password": password,
             "phone": gen_phone(),
             "name": nombre,
             "website": random.choice(WEBSITES),
+            "international_code_id": dropdowns["international_code_id"],
             "legal_acceptances": True,
         },
     }
 
-    print(f"Registrando comprador #{numero}...", end=" ", flush=True)
-    r = requests.post(f"{API_URL}/buyers", json=payload)
+    if tipo == "tipo_a":
+        payload["catalogo_1_id"] = dropdowns["catalogo_1_id"]
+        payload["catalogo_2_id"] = dropdowns["catalogo_2_id"]
+        payload["catalogo_3_id"] = dropdowns["catalogo_3_id"]
+        payload["catalogo_4_id"] = dropdowns["catalogo_4_id"]
+        payload["catalogo_5_id"] = dropdowns["catalogo_5_id"]
+        payload["catalogo_6_id"] = dropdowns["catalogo_6_id"]
+        endpoint = "/registro-tipo-a"
+    else:
+        payload["catalogo_7_id"] = dropdowns["catalogo_7_id"]
+        payload["catalogo_8_id"] = dropdowns["catalogo_8_id"]
+        payload["catalogo_9_id"] = dropdowns["catalogo_9_id"]
+        endpoint = "/registro-tipo-b"
+
+    print(f"Registrando {tipo} #{numero}...", end=" ", flush=True)
+    r = requests.post(f"{API_URL}{endpoint}", json=payload)
     return r, email, password, payload
 
 
@@ -249,7 +211,7 @@ def main():
     parser = argparse.ArgumentParser(description="Registro automático de usuarios de prueba")
     parser.add_argument(
         "--tipo",
-        choices=["comprador", "vendedor"],
+        choices=["tipo_a", "tipo_b"],
         required=True,
         help="Tipo de usuario a registrar",
     )
@@ -266,10 +228,7 @@ def main():
         sys.exit(1)
 
     try:
-        if tipo == "vendedor":
-            r, email, password, payload = register_vendedor(numero, dropdowns)
-        else:
-            r, email, password, payload = register_comprador(numero, dropdowns)
+        r, email, password, payload = register_usuario(tipo, numero, dropdowns)
     except Exception as e:
         print(f"\nError al hacer la petición: {e}")
         sys.exit(1)
@@ -280,7 +239,7 @@ def main():
         write_counter(counter)
         print()
         print("=" * 50)
-        print(f"  Tipo:       {tipo.capitalize()}")
+        print(f"  Tipo:       {tipo}")
         print(f"  Número:     #{numero}")
         print(f"  Email:      {email}")
         print(f"  Password:   {password}")
