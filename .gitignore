@@ -1,0 +1,4 @@
+.env
+counter.json
+__pycache__/
+*.pyc
